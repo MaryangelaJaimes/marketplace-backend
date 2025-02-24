@@ -28,14 +28,14 @@ const login = async (req, res) => {
     // Crear token JWT
     const token = jwt.sign(
       { id: user.id },
-      process.env.JWT_SECRET || "defaultsecret", // Asegúrate de que JWT_SECRET esté configurado
+      process.env.JWT_SECRET || "defaultsecret",
       {
         expiresIn: "1h",
       }
     );
 
     // Eliminar la contraseña antes de enviar la respuesta
-    const { password: _, ...userData } = user; // Usamos destructuración para omitir la contraseña
+    const { password: _, ...userData } = user;
 
     return res.json({ token, usuario: userData });
   } catch (error) {
@@ -82,7 +82,6 @@ const register = async (req, res) => {
       }
     );
 
-    // Omitir la contraseña antes de enviarla
     const { password: _, ...userData } = newUser.rows[0];
 
     return res.json({ token, usuario: userData });
