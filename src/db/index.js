@@ -10,3 +10,12 @@ const pool = new Pool({
 });
 
 module.exports = pool;
+
+pool.query("SELECT * FROM users", (err, res) => {
+  if (err) {
+    console.error("❌ Error al conectar a la base de datos:", err);
+  } else {
+    console.log("✅ Conexión a la base de datos exitosa:", res.rows);
+  }
+  pool.end();
+});
