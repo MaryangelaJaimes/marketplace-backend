@@ -28,14 +28,14 @@ const login = async (req, res) => {
     // Crear token JWT
     const token = jwt.sign(
       { id: user.id },
-      process.env.JWT_SECRET || "defaultsecret",
+      process.env.JWT_SECRET || "defaultsecret", // Asegúrate de que JWT_SECRET esté configurado
       {
         expiresIn: "1h",
       }
     );
 
     // Eliminar la contraseña antes de enviar la respuesta
-    const { password: _, ...userData } = user;
+    const { password: _, ...userData } = user; // Usamos destructuración para omitir la contraseña
 
     return res.json({ token, usuario: userData });
   } catch (error) {
@@ -74,11 +74,18 @@ const register = async (req, res) => {
     console.log("✅ Usuario creado:", newUser.rows[0]);
 
     // Crear token para el usuario
-    const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: newUser.rows[0].id },
+      process.env.JWT_SECRET || "defaultsecret",
+      {
+        expiresIn: "1h",
+      }
+    );
 
-    return res.json({ token, usuario: newUser.rows[0] });
+    // Omitir la contraseña antes de enviarla
+    const { password: _, ...userData } = newUser.rows[0];
+
+    return res.json({ token, usuario: userData });
   } catch (error) {
     console.error("❌ Error en register:", error);
     return res.status(500).json({ error: "Error en el servidor" });
