@@ -9,11 +9,11 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-pool.query("SELECT * FROM users", (err, res) => {
-  if (err) {
-    console.error("❌ Error al conectar a la base de datos:", err);
-  } else {
-    console.log("✅ Conexión a la base de datos exitosa:", res.rows);
-  }
-  pool.end();
-});
+pool
+  .query("SELECT NOW()")
+  .then(() => console.log("✅ Conexión a la base de datos exitosa"))
+  .catch((err) =>
+    console.error("❌ Error al conectar a la base de datos:", err)
+  );
+
+module.exports = pool;
