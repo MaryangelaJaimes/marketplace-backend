@@ -3,6 +3,7 @@ const authController = require("../controllers/authController");
 const userController = require("../controllers/userController");
 const auth = require("../middlewares/auth");
 const productRoutes = require("./productRoutes");
+const publicacionRoutes = require("./publicacionRoutes"); // Importar las rutas de publicaciones
 
 const router = express.Router();
 
@@ -16,8 +17,8 @@ router.get("/", (req, res) => {
 // =====================
 // 🔹 AUTENTICACIÓN
 // =====================
-router.post("/api/login", authController.login); // Agregado /api para consistencia
-router.post("/api/register", authController.register); // Agregado /api
+router.post("/api/login", authController.login);
+router.post("/api/register", authController.register);
 
 // =====================
 // 🔹 USUARIOS (Rutas protegidas)
@@ -28,6 +29,11 @@ router.get("/api/users/:id", auth, userController.getUserById);
 // =====================
 // 🔹 PRODUCTOS
 // =====================
-router.use("/api/productos", productRoutes); // Agregado /api para evitar confusión
+router.use("/api/productos", productRoutes);
+
+// =====================
+// 🔹 PUBLICACIONES (Rutas protegidas)
+// =====================
+router.use("/api/publicaciones", auth, publicacionRoutes); // Integrar las rutas de publicaciones
 
 module.exports = router;
