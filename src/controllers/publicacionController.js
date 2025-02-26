@@ -3,38 +3,49 @@ const pool = require("../db");
 // Crear una publicación
 const crearPublicacion = async (req, res) => {
   const { titulo, descripcion } = req.body;
+
+  console.log("🔍 Datos recibidos:", { titulo, descripcion });
+  console.log("🔍 Usuario autenticado:", req.user);
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: "Usuario no autenticado" });
+  }
+
   const usuario_id = req.user.id;
 
   try {
-    // Insertar la publicación en la base de datos
     const result = await pool.query(
       "INSERT INTO publicaciones (titulo, descripcion, usuario_id) VALUES ($1, $2, $3) RETURNING *",
       [titulo, descripcion, usuario_id]
     );
 
-    // Devolver la publicación creada
+    console.log("✅ Publicación creada:", result.rows[0]);
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error("Error al crear publicación:", error);
+    console.error("❌ Error al crear publicación:", error);
     res.status(500).json({ error: "Error en el servidor" });
   }
 };
 
 // Obtener publicaciones de un usuario
 const obtenerPublicaciones = async (req, res) => {
-  const usuario_id = req.user.id; // Obtener el ID del usuario autenticado desde el token
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: "Usuario no autenticado" });
+  }
+
+  const usuario_id = req.user.id;
 
   try {
-    // Obtener todas las publicaciones del usuario
     const result = await pool.query(
       "SELECT * FROM publicaciones WHERE usuario_id = $1",
       [usuario_id]
     );
 
-    // Devolver las publicaciones
+    console.log("📄 Publicaciones obtenidas:", result.rows);
     res.json(result.rows);
   } catch (error) {
-    console.error("Error al obtener publicaciones:", error);
+    console.error("❌ Error al obtener publicaciones:", error);
     res.status(500).json({ error: "Error en el servidor" });
   }
 };
@@ -42,19 +53,28 @@ const obtenerPublicaciones = async (req, res) => {
 // Eliminar una publicación
 const eliminarPublicacion = async (req, res) => {
   const { id } = req.params;
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: "Usuario no autenticado" });
+  }
+
   const usuario_id = req.user.id;
 
   try {
-    // Eliminar la publicación solo si pertenece al usuario
-    await pool.query(
-      "DELETE FROM publicaciones WHERE id = $1 AND usuario_id = $2",
+    const result = await pool.query(
+      "DELETE FROM publicaciones WHERE id = $1 AND usuario_id = $2 RETURNING *",
       [id, usuario_id]
     );
 
-    // Devolver un mensaje de éxito
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Publicación no encontrada" });
+    }
+
+    console.log("🗑️ Publicación eliminada:", result.rows[0]);
+
     res.json({ message: "Publicación eliminada" });
   } catch (error) {
-    console.error("Error al eliminar publicación:", error);
+    console.error("❌ Error al eliminar publicación:", error);
     res.status(500).json({ error: "Error en el servidor" });
   }
 };
