@@ -6,7 +6,7 @@ const auth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ error: "Acceso denegado, no hay token" });
   }
-  const token = authHeader.split(" ")[1];
+
   try {
     const decoded = jwt.verify(
       token.replace("Bearer ", ""),
